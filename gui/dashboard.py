@@ -22,10 +22,11 @@ from utils.dtc_codes import get_description
 
 
 class Dashboard(QMainWindow):
-    def __init__(self, obd_reader, obd_writer):
+    def __init__(self, obd_reader, obd_writer, simulation_mode=False):
         super().__init__()
         self.reader = obd_reader
         self.writer = obd_writer
+        self.simulation_mode = simulation_mode
         self.last_command_status = {}
 
         self.setWindowTitle("Professional OBD-II Dashboard")
@@ -39,6 +40,13 @@ class Dashboard(QMainWindow):
         right = QVBoxLayout()
         root_layout.addLayout(left, 2)
         root_layout.addLayout(right, 3)
+
+        mode_label = QLabel("MODE: SIMULATION" if simulation_mode else "MODE: LIVE OBD")
+        mode_label.setStyleSheet(
+            "font-weight: bold; padding: 6px; border-radius: 4px;"
+            + ("background: #ffe8a3; color: #7a5600;" if simulation_mode else "background: #d8f5d2; color: #1d6b1d;")
+        )
+        left.addWidget(mode_label)
 
         gauge_grid = QGridLayout()
         left.addLayout(gauge_grid)
@@ -152,7 +160,11 @@ class Dashboard(QMainWindow):
         )
 
         self.dtc_list.clear()
-        for code, _desc in dtcs:
+        for dtc in dtcs:
+            if isinstance(dtc, (list, tuple)) and len(dtc) > 0:
+                code = str(dtc[0])
+            else:
+                code = str(dtc)
             self.dtc_list.addItem(f"{code}: {get_description(code)}")
 
         self.csv_writer.writerow([

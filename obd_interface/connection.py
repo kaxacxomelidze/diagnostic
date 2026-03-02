@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 import obd
 
+from obd_interface.simulator import SimulatedOBDConnection
+
 
 @dataclass
 class ConnectionConfig:
@@ -12,6 +14,7 @@ class ConnectionConfig:
     baudrate: int | None = None
     fast: bool = True
     timeout: float = 1.0
+    allow_simulation_fallback: bool = True
 
 
 class OBDConnection:
@@ -21,8 +24,10 @@ class OBDConnection:
             baudrate=int(os.getenv("OBD_BAUDRATE", "0")) or None,
             fast=os.getenv("OBD_FAST", "1") != "0",
             timeout=float(os.getenv("OBD_TIMEOUT", "1.0")),
+            allow_simulation_fallback=os.getenv("OBD_SIM_FALLBACK", "1") != "0",
         )
         self.connection = None
+        self.simulation_mode = False
 
     def connect(self) -> bool:
         kwargs = {
@@ -36,6 +41,12 @@ class OBDConnection:
         self.connection = obd.OBD(**kwargs)
         if self.connection.is_connected():
             print("✅ Connected to OBD-II")
+            return True
+
+        if self.config.allow_simulation_fallback:
+            self.connection = SimulatedOBDConnection()
+            self.simulation_mode = True
+            print("⚠️ OBD adapter not found. Running in simulation mode.")
             return True
 
         print("❌ Failed to connect")

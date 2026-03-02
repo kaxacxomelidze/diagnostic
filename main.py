@@ -17,7 +17,7 @@ def main():
     writer = OBDWriter(obd_conn.connection)
 
     app = QApplication(sys.argv)
-    dashboard = Dashboard(reader, writer)
+    dashboard = Dashboard(reader, writer, simulation_mode=obd_conn.simulation_mode)
     dashboard.show()
 
     exit_code = app.exec_()
