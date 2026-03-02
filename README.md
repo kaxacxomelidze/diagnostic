@@ -54,5 +54,6 @@ Optional env vars:
 
 ## Notes
 
-- Uses `python-OBD`; real actuator writing needs ECU/UDS-specific implementation.
+- If `python-OBD` is installed and adapter exists, app runs in live mode; otherwise it still runs in simulation mode.
+- Real actuator writing still needs ECU/UDS-specific implementation for production vehicles.
 - In simulation mode, sensor values are generated to let you test UI behavior end-to-end.

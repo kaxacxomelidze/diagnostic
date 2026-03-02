@@ -2,7 +2,7 @@ import math
 import random
 import time
 
-import obd
+from obd_interface.compat import obd
 
 
 class SimulatedResponse:

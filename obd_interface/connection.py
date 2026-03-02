@@ -1,8 +1,7 @@
 import os
 from dataclasses import dataclass
 
-import obd
-
+from obd_interface.compat import HAVE_PYOBD, obd
 from obd_interface.simulator import SimulatedOBDConnection
 
 
@@ -38,10 +37,11 @@ class OBDConnection:
         }
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-        self.connection = obd.OBD(**kwargs)
-        if self.connection.is_connected():
-            print("✅ Connected to OBD-II")
-            return True
+        if HAVE_PYOBD:
+            self.connection = obd.OBD(**kwargs)
+            if self.connection.is_connected():
+                print("✅ Connected to OBD-II")
+                return True
 
         if self.config.allow_simulation_fallback:
             self.connection = SimulatedOBDConnection()
@@ -49,7 +49,7 @@ class OBDConnection:
             print("⚠️ OBD adapter not found. Running in simulation mode.")
             return True
 
-        print("❌ Failed to connect")
+        print("❌ Failed to connect (python-OBD unavailable or adapter not found)")
         return False
 
     def disconnect(self):

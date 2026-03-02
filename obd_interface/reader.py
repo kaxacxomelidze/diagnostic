@@ -1,4 +1,4 @@
-import obd
+from obd_interface.compat import obd
 
 
 class OBDReader:
